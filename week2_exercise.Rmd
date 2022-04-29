@@ -1,0 +1,42 @@
+---
+title: "week2_exercise"
+author: "Wenke Zimmermann"
+date: "2022-04-29"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Load the necessary libraries ###
+```{r}
+library(readr)        # to import tabular data (e.g. csv)
+library(dplyr)        # to manipulate (tabular) data
+library(ggplot2)      # to visualize data
+library(udunits2)
+library(sf)           # to handle spatial vector data
+library(terra)        # To handle raster data
+library(lubridate)    # To handle dates and times
+```
+
+## Task 1: Import your data
+```{r}
+# Import the downloaded csv #
+wildschwein_BE <- read_delim("wildschwein_BE_2056.csv",",")
+
+wildschwein_BE <- st_as_sf(wildschwein_BE, coords = c("E", "N"), crs = 2056, remove = FALSE)
+```
+
+#Note:
+that this dataset is already converted to EPSG 2056
+the coordinates are stored in the columns (E/N)
+setting remove = FALSE preserves the original (E/N) columns, which come in handy later on
+
+
+
+
+
+
+```
