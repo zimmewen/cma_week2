@@ -112,13 +112,64 @@ wildschwein_BE_tempdiff <- wildschwein_BE_tempdiff %>%
 
 ## Task 4: Cross-scale movement analysis
 ```{r}
-#Import caro-dataset
+##Import caro-dataset
 caro60 <- read_delim("caro60.csv",",")
 
 caro60 <- st_as_sf(caro60, coords = c("E", "N"), crs = 2056, remove = FALSE)
 
 
-#Reduce granularity
+##Reduce granularity
+caro_3 <- caro60 %>%
+  slice(seq(from = 1, to = 200, by = 3))  #'slice' nimmt Anzahl Zeilen heraus, 'seq' gibt ihm die Wiederholung aller drei Zeilen  
+
+caro_6 <- caro60 %>%
+  slice(seq(from = 1, to = 200, by = 6))
+
+caro_9 <- caro60 %>%
+  slice(seq(from = 1, to = 200, by = 9))
+
+#control
+nrow(caro60) #200
+nrow(caro_3) #67
+nrow(caro_6) #34
+nrow(caro_9) #23
+
+
+##calculate timelag, steplength, speed for each data set
+#timelag
+caro_3 <- mutate(caro_3, timelag = as.integer(difftime(lead(DatetimeUTC),DatetimeUTC, units = "sec")))
+
+caro_6 <- mutate(caro_6, timelag = as.integer(difftime(lead(DatetimeUTC),DatetimeUTC, units = "sec")))
+
+caro_9 <- mutate(caro_9, timelag = as.integer(difftime(lead(DatetimeUTC),DatetimeUTC, units = "sec")))
+
+#steplength
+caro_3 <- caro_3 %>%
+  mutate(steplength = sqrt((E-lead(E,1))^2+(N-lead(N,1))^2)
+  )
+
+caro_6 <- caro_6 %>%
+  mutate(steplength = sqrt((E-lead(E,1))^2+(N-lead(N,1))^2)
+  )
+
+caro_9 <- caro_9 %>%
+  mutate(steplength = sqrt((E-lead(E,1))^2+(N-lead(N,1))^2)
+  )
+
+#speed
+caro_3 <- caro_3 %>%
+  mutate(speed = steplength / timelag)
+
+caro_6 <- caro_6 %>%
+  mutate(speed = steplength / timelag)
+
+caro_9 <- caro_9 %>%
+  mutate(speed = steplength / timelag)
+
+
+##visualize trajectories in map
+
+
 
 
 ```
