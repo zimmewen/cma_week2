@@ -15,10 +15,11 @@ knitr::opts_chunk$set(echo = TRUE)
 library(readr)        # to import tabular data (e.g. csv)
 library(dplyr)        # to manipulate (tabular) data
 library(ggplot2)      # to visualize data
-library(udunits2)
+library(udunits2)     # needed for my laptop to loead "sf"
 library(sf)           # to handle spatial vector data
 library(terra)        # To handle raster data
 library(lubridate)    # To handle dates and times
+library(zoo)          #for moving window function
 ```
 
 ## Task 1: Import your data
@@ -143,6 +144,8 @@ caro_6 <- mutate(caro_6, timelag = as.integer(difftime(lead(DatetimeUTC),Datetim
 
 caro_9 <- mutate(caro_9, timelag = as.integer(difftime(lead(DatetimeUTC),DatetimeUTC, units = "sec")))
 
+caro60 <- mutate(caro60, timelag = as.integer(difftime(lead(DatetimeUTC),DatetimeUTC, units = "sec")))
+
 #steplength
 caro_3 <- caro_3 %>%
   mutate(steplength = sqrt((E-lead(E,1))^2+(N-lead(N,1))^2)
@@ -156,6 +159,10 @@ caro_9 <- caro_9 %>%
   mutate(steplength = sqrt((E-lead(E,1))^2+(N-lead(N,1))^2)
   )
 
+caro60 <- caro60 %>%
+  mutate(steplength = sqrt((E-lead(E,1))^2+(N-lead(N,1))^2)
+  )
+
 #speed
 caro_3 <- caro_3 %>%
   mutate(speed = steplength / timelag)
@@ -166,17 +173,64 @@ caro_6 <- caro_6 %>%
 caro_9 <- caro_9 %>%
   mutate(speed = steplength / timelag)
 
+caro60 <- caro60 %>%
+  mutate(speed = steplength / timelag)
 
-##visualize trajectories in map
 
 
+##visualize the trajectories in a map
+ggplot()+
+  geom_path(caro60, mapping=aes(E,N, color="1 minute"))+
+  geom_path(caro_3, mapping=aes(E,N, color="3 minute"))+
+  labs(title="Comparing original with 3-minute-resampling",
+       color="Trajectory")
 
+ggplot()+
+  geom_path(caro60, mapping=aes(E,N, color="1 minute"))+
+  geom_path(caro_6, mapping=aes(E,N, color="6 minute"))+
+  labs(title="Comparing original with 6-minute-resampling",
+       color="Trajectory")
+
+ggplot()+
+  geom_path(caro60, mapping=aes(E,N, color="1 minute"))+
+  geom_path(caro_9, mapping=aes(E,N, color="9 minute"))+
+  labs(title="Comparing original with 9-minute-resampling",
+       color="Trajectory")
+
+
+##compare the speeds visually in a line plot
+ggplot()+
+  geom_line(caro60, mapping=aes(DatetimeUTC,speed, color="1 minute"))+
+  geom_line(caro_3, mapping=aes(DatetimeUTC,speed, color="3 minutes"))+
+  geom_line(caro_6, mapping=aes(DatetimeUTC,speed, color="6 minutes"))+
+  geom_line(caro_9, mapping=aes(DatetimeUTC,speed, color="9 minutes"))+
+  labs(title="Comparing derived speed at different sampling intervals",
+       color="Interval",
+       x="Time",
+       y="speed (m/s)")
+#warning message removed one line but in general worked
 
 ```
 
 
 ## Task 5: Deriving movement parameters II: Rolling window functions
+Different approach to smoothen the derived parameters
 ```{r}
+#Dummy Data
+example <- rnorm(10)
+rollmean(example,k = 3,fill = NA,align = "left")
+##  [1] -0.5049544 -0.3781283 -0.1273157  0.4523153  0.4534811  0.8658536
+##  [7]  0.5452571  1.0210648         NA         NA
+rollmean(example,k = 4,fill = NA,align = "left")
+##  [1] -0.25933381 -0.22379720  0.06456868  0.45949282  0.70918920  0.56899826
+##  [7]  0.88605495          NA          NA          NA
+
+
+##run function on speed variable of caro-subset
+#rollmean(caro_3,k = 3,fill = NA,align = "left")
+
+#rollmean(example,k = 4,fill = NA,align = "left")
+
 
 ```
 
