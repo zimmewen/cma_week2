@@ -214,7 +214,7 @@ ggplot()+
 ## Task 5: Deriving movement parameters II: Rolling window functions
 Different approach to smoothen the derived parameters
 ```{r}
-#Dummy Data
+#Dummy Datahttps://computationalmovementanalysis.github.io/W2_3_preparation.html#create-github-repo
 example <- rnorm(10)
 rollmean(example,k = 3,fill = NA,align = "left")
 ##  [1] -0.5049544 -0.3781283 -0.1273157  0.4523153  0.4534811  0.8658536
@@ -249,8 +249,6 @@ ggplot()+
        x="Time",
        y="speed (m/s)")
 #warning message removed rows containing missing values position_stack
-
-
 
 ```
 
